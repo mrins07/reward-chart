@@ -1,0 +1,2074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Reward Chart">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><defs><linearGradient id='grad1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%23667eea;stop-opacity:1'/><stop offset='100%25' style='stop-color:%23764ba2;stop-opacity:1'/></linearGradient></defs><rect width='180' height='180' fill='url(%23grad1)' rx='40'/><text x='90' y='70' font-size='60' text-anchor='middle' fill='white'>🌟</text><text x='90' y='130' font-size='50' text-anchor='middle' fill='%23FFD700'>⭐</text><circle cx='40' cy='140' r='15' fill='%23FFD700' opacity='0.8'/><circle cx='140' cy='140' r='15' fill='%23FFD700' opacity='0.8'/><circle cx='40' cy='40' r='12' fill='%23FFD700' opacity='0.6'/><circle cx='140' cy='40' r='12' fill='%23FFD700' opacity='0.6'/></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🌟</text></svg>">
+    <title>Maya & Surya's Reward Chart</title>
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: pan-y;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: background 0.5s ease;
+            overflow-x: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .hamburger {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px;
+        }
+        
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background: #667eea;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        
+        .hamburger:active {
+            transform: scale(0.9);
+        }
+        
+        .header h1 {
+            font-size: 1.5em;
+            color: #667eea;
+        }
+        
+        .selector {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .selector select {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            background: white;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 5px;
+            background: #f0f0f0;
+            padding: 5px;
+            border-radius: 10px;
+        }
+        
+        .view-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #666;
+        }
+        
+        .view-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+        
+        .day-view {
+            display: none;
+            touch-action: pan-y;
+        }
+        
+        .day-view.active {
+            display: block;
+        }
+        
+        .day-swipe-area {
+            touch-action: pan-x;
+        }
+        
+        .day-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .nav-arrow {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        
+        .nav-arrow:active {
+            transform: scale(0.9);
+        }
+        
+        .day-date {
+            text-align: center;
+            color: white;
+            font-size: 1.8em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .day-card {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .day-number-large {
+            font-size: 5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .day-animal-large {
+            font-size: 8em;
+            animation: bounce 2s ease-in-out infinite;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+            margin: 20px 0;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .motivational-quote {
+            text-align: center;
+            font-size: 1.2em;
+            color: #667eea;
+            font-weight: bold;
+            font-style: italic;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+        }
+        
+        .day-icon-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .day-icon-btn {
+            width: 70px;
+            height: 70px;
+            font-size: 2.5em;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            background: #f8f8f8;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .day-icon-btn.selected {
+            border-color: #FF6B6B;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FFD700 25%, #4ECDC4 50%, #6C5CE7 75%, #FF69B4 100%);
+            color: white;
+            transform: scale(1.15);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.5);
+            animation: rainbow-pulse 2s ease-in-out infinite;
+        }
+        
+        .day-icon-btn[data-icon="bad"].selected {
+            background: linear-gradient(135deg, #FF0000 0%, #FF4500 25%, #FF6347 50%, #FF8C00 75%, #FFA500 100%);
+            border-color: #FF0000;
+            box-shadow: 0 5px 20px rgba(255, 69, 0, 0.8);
+            animation: fire-pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes fire-pulse {
+            0%, 100% { 
+                filter: brightness(1) saturate(1);
+                box-shadow: 0 5px 20px rgba(255, 69, 0, 0.8);
+            }
+            50% { 
+                filter: brightness(1.3) saturate(1.5);
+                box-shadow: 0 8px 30px rgba(255, 69, 0, 1);
+            }
+        }
+        
+        @keyframes rainbow-pulse {
+            0%, 100% { filter: brightness(1) saturate(1); }
+            50% { filter: brightness(1.2) saturate(1.3); }
+        }
+        
+        .day-icon-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .day-complete-btn {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.3em;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        
+        .day-complete-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .week-view {
+            display: none;
+        }
+        
+        .week-view.active {
+            display: block;
+        }
+        
+        .week-title {
+            text-align: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .week-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .week-day {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .week-day:active {
+            transform: scale(0.95);
+        }
+        
+        .week-day.completed {
+            background: linear-gradient(135deg, #fff9e6 0%, #ffd54f 100%);
+        }
+        
+        .week-day.has-bad {
+            background: linear-gradient(135deg, #ffebee 0%, #ef9a9a 100%);
+        }
+        
+        .week-day-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .week-day-animal {
+            font-size: 3em;
+            margin: 10px 0;
+        }
+        
+        .week-day-icons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+        
+        .month-view {
+            display: none;
+        }
+        
+        .month-view.active {
+            display: block;
+        }
+        
+        .month-title {
+            text-align: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .month-animal {
+            text-align: center;
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .month-day {
+            aspect-ratio: 1;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            background: white;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .month-day:active {
+            transform: scale(0.95);
+        }
+        
+        .month-day.completed {
+            background: linear-gradient(135deg, #fff9e6 0%, #ffd54f 100%);
+        }
+        
+        .month-day.has-bad {
+            background: linear-gradient(135deg, #ffebee 0%, #ef9a9a 100%);
+        }
+        
+        .month-day-number {
+            font-size: 1em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .month-day-animal {
+            font-size: 1.5em;
+            display: none;
+        }
+        
+        .month-day.completed .month-day-animal {
+            display: block;
+        }
+        
+        .month-day-icons {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 0.7em;
+            display: flex;
+            gap: 1px;
+        }
+        
+        .progress-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 20px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .progress-text {
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill-bg {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+            height: 100%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .reward-section {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .reward-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .reward-label {
+            font-size: 1.1em;
+            font-weight: bold;
+            white-space: nowrap;
+            color: #667eea;
+        }
+        
+        .reward-input {
+            flex: 1;
+            padding: 10px;
+            font-size: 1em;
+            border: none;
+            border-bottom: 3px solid #667eea;
+            background: transparent;
+            font-weight: bold;
+            min-height: 60px;
+        }
+        
+        .reward-input:focus {
+            outline: none;
+            border-bottom-width: 4px;
+        }
+        
+        .spin-wheel-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.2em;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        .spin-wheel-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .spin-wheel-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 12px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+        
+        .nav-btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 0.9em;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .nav-btn.print {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .nav-btn.reset {
+            background: #FF6B6B;
+            color: white;
+        }
+        
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .wheel-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+        .wheel-modal.active {
+            display: flex;
+        }
+        
+        .wheel-container {
+            text-align: center;
+            color: white;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .wheel-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        
+        .wheel-spins-left {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #FFD700;
+        }
+        
+        .slot-machine {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+            border-radius: 25px;
+            padding: 30px 20px;
+            margin: 20px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        
+        .slots-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .slot {
+            width: 100px;
+            height: 120px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .slot-reel {
+            position: absolute;
+            width: 100%;
+            transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .slot-item {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            background: white;
+        }
+        
+        .slot-result {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 120px;
+            border: 4px solid #FFD700;
+            border-radius: 15px;
+            pointer-events: none;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
+        
+        .results-display {
+            display: none;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .results-display.active {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            min-width: 140px;
+        }
+        
+        .result-card:hover {
+            transform: scale(1.05);
+            border-color: #FFD700;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .result-card:active {
+            transform: scale(0.95);
+        }
+        
+        .result-emoji {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .result-text {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .wheel-canvas-wrapper {
+            display: none;
+        }
+        
+        .wheel-spin-btn {
+            padding: 18px 40px;
+            font-size: 1.3em;
+            background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.5);
+            margin: 15px;
+        }
+        
+        .wheel-spin-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .wheel-close {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background: white;
+            color: #333;
+            border: none;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .stats-menu {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 85%;
+            max-width: 350px;
+            height: 100vh;
+            background: white;
+            box-shadow: 5px 0 20px rgba(0,0,0,0.3);
+            z-index: 3000;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .stats-menu.active {
+            left: 0;
+        }
+        
+        .stats-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2999;
+            display: none;
+        }
+        
+        .stats-overlay.active {
+            display: block;
+        }
+        
+        .stats-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stats-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        
+        .stats-close {
+            width: 35px;
+            height: 35px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 50%;
+            font-size: 1.5em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .stats-content {
+            padding: 20px;
+        }
+        
+        .stat-card {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .stat-title {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-icon-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1em;
+        }
+        
+        .stat-icon-item span:first-child {
+            font-size: 1.5em;
+        }
+        
+        .stat-icon-item span:last-child {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .notification-banner {
+            position: fixed;
+            top: -100px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            z-index: 4000;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            transition: top 0.3s ease;
+        }
+        
+        .notification-banner.show {
+            top: 0;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(102, 126, 234, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .reward-photo-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 15px;
+        }
+        
+        .reward-photo-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        
+        .reward-photos {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .reward-photo {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid #ddd;
+        }
+        
+        .add-photo-btn {
+            aspect-ratio: 1;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: #667eea;
+            cursor: pointer;
+        }
+        
+        .photo-input {
+            display: none;
+        }
+        
+        @media print {
+            .header, .bottom-nav, .spin-wheel-btn, .view-toggle, .day-navigation {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="notification-banner" id="notificationBanner">
+        📚 Time to update your reward chart!
+    </div>
+    
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <div class="stats-overlay" id="statsOverlay" onclick="toggleStatsMenu()"></div>
+    
+    <div class="stats-menu" id="statsMenu">
+        <div class="stats-header">
+            <h2>📊 Monthly Stats</h2>
+            <button class="stats-close" onclick="toggleStatsMenu()">✕</button>
+        </div>
+        <div class="stats-content" id="statsContent">
+        </div>
+    </div>
+    
+    <div class="header">
+        <div class="header-top">
+            <div class="header-left">
+                <button class="hamburger" onclick="toggleStatsMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <h1 id="mainTitle">🌟 Reward Chart</h1>
+            </div>
+            <div class="selector">
+                <select id="childSelect" onchange="updateChart()">
+                    <option value="maya">Maya</option>
+                    <option value="surya">Surya</option>
+                </select>
+                <select id="monthSelect" onchange="updateChart()">
+                    <option value="0">Dec 2025</option>
+                    <option value="1">Jan 2026</option>
+                    <option value="2">Feb 2026</option>
+                    <option value="3">Mar 2026</option>
+                    <option value="4">Apr 2026</option>
+                    <option value="5">May 2026</option>
+                    <option value="6">Jun 2026</option>
+                    <option value="7">Jul 2026</option>
+                    <option value="8">Aug 2026</option>
+                    <option value="9">Sep 2026</option>
+                    <option value="10">Oct 2026</option>
+                    <option value="11">Nov 2026</option>
+                    <option value="12">Dec 2026</option>
+                    <option value="13">Jan 2027</option>
+                    <option value="14">Feb 2027</option>
+                    <option value="15">Mar 2027</option>
+                    <option value="16">Apr 2027</option>
+                    <option value="17">May 2027</option>
+                    <option value="18">Jun 2027</option>
+                    <option value="19">Jul 2027</option>
+                    <option value="20">Aug 2027</option>
+                    <option value="21">Sep 2027</option>
+                    <option value="22">Oct 2027</option>
+                    <option value="23">Nov 2027</option>
+                    <option value="24">Dec 2027</option>
+                </select>
+            </div>
+        </div>
+        <div class="view-toggle">
+            <button class="view-btn active" onclick="switchView('day')">Day</button>
+            <button class="view-btn" onclick="switchView('week')">Week</button>
+            <button class="view-btn" onclick="switchView('month')">Month</button>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="day-view active day-swipe-area" id="dayView">
+            <div class="day-navigation">
+                <button class="nav-arrow" onclick="changeDay(-1)">◀</button>
+                <div class="day-date" id="dayDate">Day 1</div>
+                <button class="nav-arrow" onclick="changeDay(1)">▶</button>
+            </div>
+            
+            <div class="day-card">
+                <div class="day-number-large" id="dayNumberLarge">1</div>
+                <div class="motivational-quote" id="motivationalQuote">"You can do it!"</div>
+                <div class="day-animal-large" id="dayAnimalLarge">🦫</div>
+                
+                <div class="day-icon-buttons" id="dayIconButtons">
+                    <button class="day-icon-btn" data-icon="sun" onclick="toggleDayIcon('sun')">☀️</button>
+                    <button class="day-icon-btn" data-icon="moon" onclick="toggleDayIcon('moon')">🌙</button>
+                    <button class="day-icon-btn" data-icon="star" onclick="toggleDayIcon('star')">⭐</button>
+                    <button class="day-icon-btn" data-icon="book" onclick="toggleDayIcon('book')">📚</button>
+                    <button class="day-icon-btn" data-icon="bad" onclick="toggleDayIcon('bad')">❌</button>
+                </div>
+                
+                <button class="day-complete-btn" id="dayCompleteBtn" onclick="toggleDayComplete()">
+                    Mark as Complete
+                </button>
+            </div>
+        </div>
+        
+        <div class="week-view" id="weekView">
+            <div class="week-title" id="weekTitle">Week 1 (Days 1-7)</div>
+            <div class="week-grid" id="weekGrid"></div>
+        </div>
+        
+        <div class="month-view" id="monthView">
+            <div class="month-title" id="monthViewTitle"></div>
+            <div class="month-animal" id="monthAnimal"></div>
+            
+            <div class="progress-bar">
+                <div class="progress-text" id="progressText">0 / 30 completed</div>
+                <div class="progress-fill-bg">
+                    <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+                </div>
+            </div>
+            
+            <div class="month-grid" id="monthGrid"></div>
+            
+            <div class="reward-section">
+                <div class="reward-input-wrapper">
+                    <div class="reward-label">MY REWARD:</div>
+                    <input type="text" 
+                           class="reward-input" 
+                           id="rewardInput"
+                           placeholder="Write reward...">
+                </div>
+                <button class="spin-wheel-btn" id="spinBtnWeekly" onclick="openWheel('mixed')" style="background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);">
+                    🎰 SPIN THE SLOTS!
+                </button>
+                <button class="spin-wheel-btn" id="spinBtnBonus" onclick="openWheel('bigOnly')" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); margin-top: 10px;">
+                    🏆 BONUS MONTH-END SPIN!
+                </button>
+                
+                <div class="reward-photo-section">
+                    <div class="reward-photo-title">📸 Reward Photos</div>
+                    <div class="reward-photos" id="rewardPhotos">
+                        <label class="add-photo-btn" for="photoInput">
+                            📷
+                        </label>
+                    </div>
+                    <input type="file" id="photoInput" class="photo-input" accept="image/*" capture="environment" onchange="addRewardPhoto(event)">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="wheel-modal" id="wheelModal">
+        <div class="wheel-container">
+            <h2 class="wheel-title" id="wheelTitle">🎰 SPIN THE SLOTS! 🎰</h2>
+            <div class="wheel-spins-left" id="spinsLeft">Spins Remaining: 4</div>
+            
+            <div class="slot-machine">
+                <div class="slots-container">
+                    <div class="slot">
+                        <div class="slot-reel" id="reel1"></div>
+                        <div class="slot-result"></div>
+                    </div>
+                    <div class="slot">
+                        <div class="slot-reel" id="reel2"></div>
+                        <div class="slot-result"></div>
+                    </div>
+                    <div class="slot">
+                        <div class="slot-reel" id="reel3"></div>
+                        <div class="slot-result"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-display" id="resultsDisplay">
+            </div>
+            
+            <button class="wheel-spin-btn" id="wheelSpinBtn" onclick="spinSlots()">SPIN!</button>
+            <button class="wheel-close" onclick="closeWheel()">Done</button>
+        </div>
+    </div>
+    
+    <div class="bottom-nav">
+        <button class="nav-btn print" onclick="printChart()">📄 Print</button>
+        <button class="nav-btn reset" onclick="resetChart()">🔄 Reset</button>
+    </div>
+
+    <script>
+        const monthColors = [
+            { bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: '#667eea' },
+            { bg: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)', border: '#52c79f' },
+            { bg: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', border: '#fa709a' },
+            { bg: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)', border: '#30cfd0' },
+            { bg: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', border: '#7dd3c0' },
+            { bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', border: '#fcb69f' },
+            { bg: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', border: '#ff9a9e' },
+            { bg: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)', border: '#c99fdb' },
+            { bg: 'linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%)', border: '#f5a5d8' },
+            { bg: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', border: '#f093fb' },
+            { bg: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', border: '#4facfe' },
+            { bg: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', border: '#43e97b' },
+            { bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: '#667eea' },
+            { bg: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)', border: '#52c79f' },
+            { bg: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', border: '#fa709a' },
+            { bg: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)', border: '#30cfd0' },
+            { bg: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', border: '#7dd3c0' },
+            { bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', border: '#fcb69f' },
+            { bg: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', border: '#ff9a9e' },
+            { bg: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)', border: '#c99fdb' },
+            { bg: 'linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%)', border: '#f5a5d8' },
+            { bg: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', border: '#f093fb' },
+            { bg: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', border: '#4facfe' },
+            { bg: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', border: '#43e97b' }
+        ];
+
+        const animals = {
+            maya: [
+                { name: 'Capybara', emoji: '🦫', month: 'December 2025' },
+                { name: 'Koala', emoji: '🐨', month: 'January 2026' },
+                { name: 'Unicorn', emoji: '🦄', month: 'February 2026' },
+                { name: 'Panda', emoji: '🐼', month: 'March 2026' },
+                { name: 'Bunny', emoji: '🐰', month: 'April 2026' },
+                { name: 'Cat', emoji: '🐱', month: 'May 2026' },
+                { name: 'Butterfly', emoji: '🦋', month: 'June 2026' },
+                { name: 'Fox', emoji: '🦊', month: 'July 2026' },
+                { name: 'Penguin', emoji: '🐧', month: 'August 2026' },
+                { name: 'Hamster', emoji: '🐹', month: 'September 2026' },
+                { name: 'Otter', emoji: '🦦', month: 'October 2026' },
+                { name: 'Sloth', emoji: '🦥', month: 'November 2026' },
+                { name: 'Seal', emoji: '🦭', month: 'December 2026' },
+                { name: 'Deer', emoji: '🦌', month: 'January 2027' },
+                { name: 'Hedgehog', emoji: '🦔', month: 'February 2027' },
+                { name: 'Raccoon', emoji: '🦝', month: 'March 2027' },
+                { name: 'Squirrel', emoji: '🐿️', month: 'April 2027' },
+                { name: 'Dove', emoji: '🕊️', month: 'May 2027' },
+                { name: 'Swan', emoji: '🦢', month: 'June 2027' },
+                { name: 'Flamingo', emoji: '🦩', month: 'July 2027' },
+                { name: 'Peacock', emoji: '🦚', month: 'August 2027' },
+                { name: 'Parrot', emoji: '🦜', month: 'September 2027' },
+                { name: 'Duck', emoji: '🦆', month: 'October 2027' },
+                { name: 'Owl', emoji: '🦉', month: 'November 2027' },
+                { name: 'Chick', emoji: '🐥', month: 'December 2027' }
+            ],
+            surya: [
+                { name: 'Eagle', emoji: '🦅', month: 'December 2025' },
+                { name: 'Dolphin', emoji: '🐬', month: 'January 2026' },
+                { name: 'Lion', emoji: '🦁', month: 'February 2026' },
+                { name: 'Shark', emoji: '🦈', month: 'March 2026' },
+                { name: 'Tiger', emoji: '🐯', month: 'April 2026' },
+                { name: 'T-Rex', emoji: '🦖', month: 'May 2026' },
+                { name: 'Wolf', emoji: '🐺', month: 'June 2026' },
+                { name: 'Dragon', emoji: '🐉', month: 'July 2026' },
+                { name: 'Gorilla', emoji: '🦍', month: 'August 2026' },
+                { name: 'Crocodile', emoji: '🐊', month: 'September 2026' },
+                { name: 'Bear', emoji: '🐻', month: 'October 2026' },
+                { name: 'Rhino', emoji: '🦏', month: 'November 2026' },
+                { name: 'Leopard', emoji: '🐆', month: 'December 2026' },
+                { name: 'Elephant', emoji: '🐘', month: 'January 2027' },
+                { name: 'Hippo', emoji: '🦛', month: 'February 2027' },
+                { name: 'Giraffe', emoji: '🦒', month: 'March 2027' },
+                { name: 'Zebra', emoji: '🦓', month: 'April 2027' },
+                { name: 'Kangaroo', emoji: '🦘', month: 'May 2027' },
+                { name: 'Bison', emoji: '🦬', month: 'June 2027' },
+                { name: 'Ox', emoji: '🐂', month: 'July 2027' },
+                { name: 'Ram', emoji: '🐏', month: 'August 2027' },
+                { name: 'Boar', emoji: '🐗', month: 'September 2027' },
+                { name: 'Mammoth', emoji: '🦣', month: 'October 2027' },
+                { name: 'Camel', emoji: '🐫', month: 'November 2027' },
+                { name: 'Horse', emoji: '🐴', month: 'December 2027' }
+            ]
+        };
+
+        const allRewards = {
+            mixed: [
+                'Extra Screen Time ⏰',
+                '1 Hour Screen 📱',
+                'Ice Cream 🍦',
+                'Special Snack 🍿',
+                'Stay Up Late 🌙',
+                'Candy 🍬',
+                'New Stickers 🌟',
+                'Extra Bedtime Story 📖',
+                'Choose Today\'s Show 📺',
+                '$2 💵',
+                'Bake Cookies Together 🍪',
+                'Pick the Game Night 🎲',
+                'Movie Theater 🎭',
+                'Visit a Park 🏞️',
+                'Buy a Book 📚',
+                '$5 💵',
+                'Dinner Date 🍽️',
+                'Movie Night 🎬',
+                'Swimming Pool 🏊',
+                'New Art Supplies 🎨',
+                'Pizza Night 🍕',
+                'McDonald\'s 🍔',
+                'Playground Trip 🎪',
+                'Museum Day 🏛️',
+                'Sleepover 🛏️',
+                '2 Hours with Mom 👩‍👧',
+                '2 Hours with Dad 👨‍👧',
+                'Choose Weekend Activity 🎯',
+                '3 Wishes ⭐⭐⭐'
+            ],
+            bigOnly: [
+                'Movie Theater 🎭',
+                'Visit a Park 🏞️',
+                'Buy a Book 📚',
+                '$5 💵',
+                'Dinner Date 🍽️',
+                'Movie Night 🎬',
+                'Swimming Pool 🏊',
+                'New Art Supplies 🎨',
+                'Pizza Night 🍕',
+                'McDonald\'s 🍔',
+                'Playground Trip 🎪',
+                'Museum Day 🏛️',
+                'Sleepover 🛏️',
+                '2 Hours with Mom 👩‍👧',
+                '2 Hours with Dad 👨‍👧',
+                'Choose Weekend Activity 🎯',
+                '3 Wishes ⭐⭐⭐'
+            ]
+        };
+
+        const dailyAnimals = [
+            '🦁', '🐯', '🐻', '🦊', '🐼', '🐨', '🦘', '🦒', '🐘', '🦏',
+            '🦛', '🐆', '🦓', '🐪', '🦙', '🦔', '🦦', '🦫', '🦝', '🐿️',
+            '🦨', '🦡', '🐾', '🦃', '🦚', '🦜', '🦩', '🦢', '🦆', '🦅'
+        ];
+
+        const motivationalQuotes = [
+            "You're amazing! 🌟",
+            "Keep going, superstar! ⭐",
+            "You've got this! 💪",
+            "Believe in yourself! 🌈",
+            "You're doing great! 🎉",
+            "One step at a time! 👣",
+            "You're unstoppable! 🚀",
+            "Dream big! ✨",
+            "Stay awesome! 😎",
+            "You're a champion! 🏆",
+            "Keep shining! ☀️",
+            "You rock! 🎸",
+            "Never give up! 💫",
+            "You're incredible! 🌺",
+            "Make it happen! 🎯",
+            "You're special! 💝",
+            "Stay positive! 🌻",
+            "You can do it! 🎪",
+            "Be proud of yourself! 🦋",
+            "You're brilliant! 💡",
+            "Keep smiling! 😊",
+            "You're a star! ⭐",
+            "Reach for the sky! 🌠",
+            "You're powerful! ⚡",
+            "Believe in magic! 🪄",
+            "You're wonderful! 🌸",
+            "Stay strong! 🦸",
+            "You're fantastic! 🎨",
+            "Keep dreaming! 🌙",
+            "You're the best! 🥇"
+        ];
+
+        let completedData = {};
+        let currentView = 'day';
+        let currentDay = 1;
+        let wheelRewards = [];
+        let isSpinning = false;
+        let weeklySpinsRemaining = 4;
+        let bonusSpinRemaining = 1;
+        let chosenRewards = [];
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let currentWheelType = 'mixed';
+
+        const sounds = {
+            complete: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVq3m7q5aFgxKpuPwwHEiBS+D0PPWhzYHImyx7uSXRg0NUqzl7q1ZFgxIpePwwXEiBTCD0fPWiDYHIm2w7uOYRw0NUqvl7q5ZFg=='),
+            confetti: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVq3m7q5aFgxKpuPwwHEiBS+D0PPWhzYHImyx7uSXRg0NUqzl7q1ZFgxIpePwwXEiBTCD0fPWiDYHIm2w7uOYRw0NUqvl7q5ZFg==')
+        };
+
+        function loadData() {
+            const saved = localStorage.getItem('rewardChartData');
+            if (saved) {
+                completedData = JSON.parse(saved);
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('rewardChartData', JSON.stringify(completedData));
+        }
+
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }
+
+        function scheduleDailyNotification() {
+            const now = new Date();
+            const scheduledTime = new Date();
+            scheduledTime.setHours(19, 0, 0, 0);
+            
+            if (now > scheduledTime) {
+                scheduledTime.setDate(scheduledTime.getDate() + 1);
+            }
+            
+            const timeUntilNotification = scheduledTime - now;
+            
+            setTimeout(() => {
+                showNotification();
+                setInterval(showNotification, 24 * 60 * 60 * 1000);
+            }, timeUntilNotification);
+        }
+
+        function showNotification() {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('Reward Chart Reminder! 📚', {
+                    body: "Don't forget to update your reward chart today!",
+                    icon: '📚',
+                    badge: '⭐'
+                });
+            }
+            
+            const banner = document.getElementById('notificationBanner');
+            banner.classList.add('show');
+            setTimeout(() => {
+                banner.classList.remove('show');
+            }, 5000);
+        }
+
+        function vibrate(pattern = 10) {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        function playSound(soundName) {
+            if (sounds[soundName]) {
+                sounds[soundName].currentTime = 0;
+                sounds[soundName].play().catch(() => {});
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        function hideLoading() {
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').classList.remove('active');
+            }, 300);
+        }
+
+        function addRewardPhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const key = getStorageKey();
+                if (!completedData[key + '_photos']) {
+                    completedData[key + '_photos'] = [];
+                }
+                
+                completedData[key + '_photos'].push(e.target.result);
+                saveData();
+                displayRewardPhotos();
+                vibrate(20);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function displayRewardPhotos() {
+            const key = getStorageKey();
+            const photos = completedData[key + '_photos'] || [];
+            const container = document.getElementById('rewardPhotos');
+            
+            container.innerHTML = `
+                <label class="add-photo-btn" for="photoInput">
+                    📷
+                </label>
+            `;
+            
+            photos.forEach((photoData, index) => {
+                const img = document.createElement('img');
+                img.src = photoData;
+                img.className = 'reward-photo';
+                img.onclick = () => viewPhoto(photoData);
+                container.appendChild(img);
+            });
+        }
+
+        function viewPhoto(photoData) {
+            const win = window.open();
+            win.document.write(`<img src="${photoData}" style="width:100%; height:auto;">`);
+        }
+
+        function getStorageKey() {
+            const child = document.getElementById('childSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            return `${child}_${month}`;
+        }
+
+        function switchView(view) {
+            showLoading();
+            currentView = view;
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('dayView').classList.remove('active');
+            document.getElementById('weekView').classList.remove('active');
+            document.getElementById('monthView').classList.remove('active');
+            
+            setTimeout(() => {
+                document.getElementById(view + 'View').classList.add('active');
+                
+                if (view === 'week') renderWeekView();
+                if (view === 'month') renderMonthView();
+                
+                hideLoading();
+                vibrate(10);
+            }, 100);
+        }
+
+        function changeDay(delta) {
+            currentDay = Math.max(1, Math.min(30, currentDay + delta));
+            renderDayView();
+            vibrate(10);
+        }
+
+        function handleTouchStart(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }
+
+        function handleTouchEnd(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    changeDay(1);
+                } else {
+                    changeDay(-1);
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const dayView = document.getElementById('dayView');
+            dayView.addEventListener('touchstart', handleTouchStart, false);
+            dayView.addEventListener('touchend', handleTouchEnd, false);
+        });
+
+        function renderDayView() {
+            const child = document.getElementById('childSelect').value;
+            const monthIndex = parseInt(document.getElementById('monthSelect').value);
+            const animal = animals[child][monthIndex];
+            const key = getStorageKey();
+            const completed = completedData[key] || {};
+            const ratings = completedData[key + '_ratings'] || {};
+            
+            document.getElementById('dayDate').textContent = `Day ${currentDay}`;
+            document.getElementById('dayNumberLarge').textContent = currentDay;
+            
+            const dayAnimal = dailyAnimals[currentDay - 1];
+            document.getElementById('dayAnimalLarge').textContent = dayAnimal;
+            
+            const quote = motivationalQuotes[currentDay - 1];
+            document.getElementById('motivationalQuote').textContent = quote;
+            
+            const rating = ratings[currentDay] || { suns: 0, moons: 0, stars: 0, books: 0, bad: 0 };
+            
+            document.querySelectorAll('.day-icon-btn').forEach(btn => {
+                const icon = btn.dataset.icon;
+                const field = icon === 'sun' ? 'suns' : icon === 'moon' ? 'moons' : icon === 'star' ? 'stars' : icon === 'book' ? 'books' : 'bad';
+                const isSelected = rating[field] > 0;
+                btn.classList.toggle('selected', isSelected);
+            });
+            
+            const completeBtn = document.getElementById('dayCompleteBtn');
+            if (completed[currentDay]) {
+                completeBtn.textContent = '✓ Day Completed!';
+            } else {
+                completeBtn.textContent = 'Mark as Complete';
+            }
+        }
+
+        function toggleDayComplete() {
+            const key = getStorageKey();
+            if (!completedData[key]) completedData[key] = {};
+            if (!completedData[key + '_ratings']) completedData[key + '_ratings'] = {};
+            
+            const wasCompleted = completedData[key][currentDay];
+            
+            if (!wasCompleted) {
+                completedData[key][currentDay] = true;
+                completedData[key + '_ratings'][currentDay] = { suns: 0, moons: 0, stars: 0, books: 0, bad: 0 };
+                
+                vibrate([10, 50, 10]);
+                playSound('complete');
+                
+                setTimeout(() => {
+                    playSound('confetti');
+                    launchConfetti();
+                }, 100);
+            } else {
+                completedData[key][currentDay] = false;
+                delete completedData[key + '_ratings'][currentDay];
+                vibrate(10);
+            }
+            
+            saveData();
+            renderDayView();
+        }
+
+        function toggleDayIcon(iconType) {
+            const key = getStorageKey();
+            if (!completedData[key]) completedData[key] = {};
+            if (!completedData[key + '_ratings']) completedData[key + '_ratings'] = {};
+            if (!completedData[key + '_ratings'][currentDay]) {
+                completedData[key + '_ratings'][currentDay] = { suns: 0, moons: 0, stars: 0, books: 0, bad: 0 };
+            }
+            
+            completedData[key][currentDay] = true;
+            
+            const rating = completedData[key + '_ratings'][currentDay];
+            const field = iconType === 'sun' ? 'suns' : iconType === 'moon' ? 'moons' : iconType === 'star' ? 'stars' : iconType === 'book' ? 'books' : 'bad';
+            rating[field] = rating[field] === 1 ? 0 : 1;
+            
+            vibrate(15);
+            saveData();
+            renderDayView();
+        }
+
+        function launchConfetti() {
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#FF85A2', '#6C5CE7', '#FFD700', '#FF69B4'];
+            const confettiCount = 100;
+            
+            for (let i = 0; i < confettiCount; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-10px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animation = `confetti-fall ${2 + Math.random() * 2}s linear forwards`;
+                    confetti.style.animationDelay = Math.random() * 0.3 + 's';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 4000);
+                }, i * 20);
+            }
+        }
+
+        function renderWeekView() {
+            const child = document.getElementById('childSelect').value;
+            const monthIndex = parseInt(document.getElementById('monthSelect').value);
+            const animal = animals[child][monthIndex];
+            const key = getStorageKey();
+            const completed = completedData[key] || {};
+            const ratings = completedData[key + '_ratings'] || {};
+            
+            const weekNum = Math.ceil(currentDay / 7);
+            const startDay = (weekNum - 1) * 7 + 1;
+            const endDay = Math.min(startDay + 6, 30);
+            
+            document.getElementById('weekTitle').textContent = `Week ${weekNum} (Days ${startDay}-${endDay})`;
+            
+            const grid = document.getElementById('weekGrid');
+            grid.innerHTML = '';
+            
+            for (let i = startDay; i <= endDay; i++) {
+                const day = document.createElement('div');
+                day.className = 'week-day';
+                if (completed[i]) {
+                    const rating = ratings[i] || { suns: 0, moons: 0, stars: 0, books: 0, bad: 0 };
+                    if (rating.bad > 0) {
+                        day.classList.add('has-bad');
+                    } else {
+                        day.classList.add('completed');
+                    }
+                }
+                
+                const rating = ratings[i] || { suns: 0, moons: 0, stars: 0, books: 0, bad: 0 };
+                let icons = '';
+                if (rating.bad > 0) icons += '❌';
+                if (rating.suns > 0) icons += '☀️';
+                if (rating.moons > 0) icons += '🌙';
+                if (rating.stars > 0) icons += '⭐';
+                if (rating.books > 0) icons += '📚';
+                
+                const dayAnimal = dailyAnimals[i - 1];
+                
+                day.innerHTML = `
+                    <div class="week-day-number">${i}</div>
+                    <div class="week-day-animal">${completed[i] ? dayAnimal : ''}</div>
+                    <div class="week-day-icons">${icons}</div>
+                `;
+                
+                day.onclick = () => {
+                    currentDay = i;
+                    switchView('day');
+                    renderDayView();
+                };
+                
+                grid.appendChild(day);
+            }
+        }
+
+        function renderMonthView() {
+            const child = document.getElementById('childSelect').value;
+            const monthIndex = parseInt(document.getElementById('monthSelect').value);
+            const animal = animals[child][monthIndex];
+            const key = getStorageKey();
+            const completed = completedData[key] || {};
+            const ratings = completedData[key + '_ratings'] || {};
+            
+            document.getElementById('monthViewTitle').textContent = animal.month;
+            document.getElementById('monthAnimal').textContent = animal.emoji;
+            
+            const grid = document.getElementById('monthGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 1; i <= 30; i++) {
+                const day = document.createElement('div');
+                day.className = 'month-day';
+                day.style.borderColor = monthColors[monthIndex].border;
+                
+                if (completed[i]) {
+                    const rating = ratings[i] || { suns: 0, moons: 0, stars: 0, books: 0, bad: 0 };
+                    day.classList.add('completed');
+                    if (rating.bad > 0) {
+                        day.classList.add('has-bad');
+                    }
+                }
+                
+                const rating = ratings[i] || { suns: 0, moons: 0, stars: 0, books: 0, bad: 0 };
+                let icons = '';
+                if (rating.bad > 0) icons += '❌';
+                if (rating.suns > 0) icons += '☀️';
+                if (rating.moons > 0) icons += '🌙';
+                if (rating.stars > 0) icons += '⭐';
+                if (rating.books > 0) icons += '📚';
+                
+                const dayAnimal = dailyAnimals[i - 1];
+                
+                day.innerHTML = `
+                    ${icons ? `<div class="month-day-icons">${icons}</div>` : ''}
+                    <div class="month-day-number">${i}</div>
+                    <div class="month-day-animal">${dayAnimal}</div>
+                `;
+                
+                day.onclick = () => {
+                    currentDay = i;
+                    switchView('day');
+                    renderDayView();
+                };
+                
+                grid.appendChild(day);
+            }
+            
+            updateProgress();
+            updateSpinButton();
+        }
+
+        function updateProgress() {
+            const key = getStorageKey();
+            const completed = completedData[key] || {};
+            const count = Object.values(completed).filter(v => v).length;
+            const percentage = Math.round((count / 30) * 100);
+            
+            document.getElementById('progressText').textContent = `${count} / 30 completed`;
+            document.getElementById('progressFill').style.width = `${percentage}%`;
+            document.getElementById('progressFill').textContent = `${percentage}%`;
+        }
+
+        function updateChart() {
+            showLoading();
+            
+            const child = document.getElementById('childSelect').value;
+            const monthIndex = parseInt(document.getElementById('monthSelect').value);
+            const colors = monthColors[monthIndex];
+            
+            const childName = child === 'maya' ? 'Maya' : 'Surya';
+            document.getElementById('mainTitle').textContent = `🌟 ${childName}`;
+            document.body.style.background = colors.bg;
+            
+            const key = getStorageKey();
+            document.getElementById('rewardInput').value = completedData[key + '_reward'] || '';
+            
+            setTimeout(() => {
+                if (currentView === 'day') renderDayView();
+                if (currentView === 'week') renderWeekView();
+                if (currentView === 'month') {
+                    renderMonthView();
+                    displayRewardPhotos();
+                }
+                hideLoading();
+            }, 100);
+        }
+
+        function openWheel(wheelType) {
+            currentWheelType = wheelType;
+            const key = getStorageKey();
+            
+            if (!completedData[key + '_weeklySpins']) {
+                weeklySpinsRemaining = 4;
+                bonusSpinRemaining = 1;
+            } else {
+                weeklySpinsRemaining = completedData[key + '_weeklySpins'];
+                bonusSpinRemaining = completedData[key + '_bonusSpin'];
+            }
+            
+            chosenRewards = completedData[key + '_chosen'] || [];
+            
+            const rewardPool = allRewards[wheelType];
+            wheelRewards = rewardPool;
+            
+            document.getElementById('wheelModal').classList.add('active');
+            document.getElementById('resultsDisplay').classList.remove('active');
+            document.getElementById('wheelSpinBtn').style.display = 'block';
+            updateSpinsDisplay();
+            populateReels();
+        }
+
+        function populateReels() {
+            for (let i = 1; i <= 3; i++) {
+                const reel = document.getElementById(`reel${i}`);
+                const shuffled = [...wheelRewards].sort(() => Math.random() - 0.5);
+                
+                let html = '';
+                for (let j = 0; j < 20; j++) {
+                    const reward = shuffled[j % shuffled.length];
+                    const emoji = reward.split(' ')[reward.split(' ').length - 1];
+                    html += `<div class="slot-item">${emoji}</div>`;
+                }
+                reel.innerHTML = html;
+                reel.style.transform = 'translateY(0)';
+            }
+        }
+
+        function spinSlots() {
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            const spinBtn = document.getElementById('wheelSpinBtn');
+            spinBtn.disabled = true;
+            
+            playSound('confetti');
+            vibrate([10, 50, 10, 50, 10]);
+            
+            const results = [];
+            
+            for (let i = 1; i <= 3; i++) {
+                const reel = document.getElementById(`reel${i}`);
+                const randomStop = Math.floor(Math.random() * wheelRewards.length);
+                const offset = randomStop * 120;
+                const spins = 2400 + offset + (i * 200);
+                
+                reel.style.transition = `transform ${2 + i * 0.3}s cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+                reel.style.transform = `translateY(-${spins}px)`;
+                
+                results.push(wheelRewards[randomStop]);
+            }
+            
+            setTimeout(() => {
+                showResults(results);
+                isSpinning = false;
+            }, 3500);
+        }
+
+        function showResults(results) {
+            const resultsDiv = document.getElementById('resultsDisplay');
+            resultsDiv.innerHTML = '';
+            
+            results.forEach((reward, index) => {
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                
+                const emoji = reward.split(' ').pop();
+                const text = reward.substring(0, reward.lastIndexOf(' ')).trim() || reward;
+                
+                card.innerHTML = `
+                    <div class="result-emoji">${emoji}</div>
+                    <div class="result-text">${text}</div>
+                `;
+                
+                card.onclick = () => selectReward(reward);
+                resultsDiv.appendChild(card);
+            });
+            
+            resultsDiv.classList.add('active');
+            document.getElementById('wheelSpinBtn').style.display = 'none';
+        }
+
+        function selectReward(reward) {
+            chosenRewards.push(reward);
+            
+            if (currentWheelType === 'mixed') {
+                weeklySpinsRemaining--;
+            } else {
+                bonusSpinRemaining--;
+            }
+            
+            const key = getStorageKey();
+            completedData[key + '_weeklySpins'] = weeklySpinsRemaining;
+            completedData[key + '_bonusSpin'] = bonusSpinRemaining;
+            completedData[key + '_chosen'] = chosenRewards;
+            saveData();
+            
+            playSound('complete');
+            vibrate([20, 100, 20]);
+            launchConfetti();
+            
+            const bonusMessage = currentWheelType === 'bigOnly' ? '\n\n🏆 BONUS SPIN! BIG REWARD! 🏆' : '';
+            alert(`🎉 YOU CHOSE: ${reward} 🎉${bonusMessage}\n\nYour rewards so far:\n${chosenRewards.join('\n')}`);
+            
+            updateRewardDisplay();
+            closeWheel();
+        }
+
+        function closeWheel() {
+            document.getElementById('wheelModal').classList.remove('active');
+            updateRewardDisplay();
+        }
+
+        function updateSpinsDisplay() {
+            const spins = currentWheelType === 'mixed' ? weeklySpinsRemaining : bonusSpinRemaining;
+            const wheelTitle = currentWheelType === 'mixed' ? '🎰 SPIN THE SLOTS! 🎰' : '🏆 BONUS SLOTS - BIG REWARDS! 🏆';
+            
+            document.getElementById('wheelTitle').textContent = wheelTitle;
+            document.getElementById('spinsLeft').textContent = `Spins Remaining: ${spins}`;
+            
+            const spinBtn = document.getElementById('wheelSpinBtn');
+            if (spins <= 0) {
+                spinBtn.disabled = true;
+                spinBtn.textContent = 'No Spins Left';
+            } else {
+                spinBtn.disabled = false;
+                spinBtn.textContent = 'SPIN!';
+            }
+        }
+
+        function updateRewardDisplay() {
+            const key = getStorageKey();
+            const rewardInput = document.getElementById('rewardInput');
+            if (chosenRewards.length > 0) {
+                rewardInput.value = chosenRewards.join(', ');
+                completedData[key + '_reward'] = chosenRewards.join(', ');
+                saveData();
+            }
+        }
+
+        function updateSpinButton() {
+            const key = getStorageKey();
+            const completed = completedData[key] || {};
+            const count = Object.values(completed).filter(v => v).length;
+            
+            const weeklyBtn = document.getElementById('spinBtnWeekly');
+            const bonusBtn = document.getElementById('spinBtnBonus');
+            
+            const weeksCompleted = Math.floor(count / 7);
+            const weeklySpinsUsed = (completedData[key + '_weeklySpins'] !== undefined) ? (4 - completedData[key + '_weeklySpins']) : 0;
+            const weeklySpinsAvailable = Math.min(weeksCompleted - weeklySpinsUsed, 4);
+            
+            if (weeklySpinsAvailable > 0) {
+                weeklyBtn.disabled = false;
+                weeklyBtn.textContent = `🎰 SPIN THE SLOTS! (${weeklySpinsAvailable} available)`;
+            } else {
+                weeklyBtn.disabled = true;
+                const nextMilestone = Math.ceil((count + 1) / 7) * 7;
+                weeklyBtn.textContent = `Complete ${nextMilestone} days for next spin! (${count}/30)`;
+            }
+            
+            const bonusUsed = (completedData[key + '_bonusSpin'] !== undefined) ? (1 - completedData[key + '_bonusSpin']) : 0;
+            
+            if (count === 30 && bonusUsed === 0) {
+                bonusBtn.disabled = false;
+                bonusBtn.textContent = '🏆 BONUS SLOT! (Big Rewards Only!)';
+            } else if (count === 30 && bonusUsed === 1) {
+                bonusBtn.disabled = true;
+                bonusBtn.textContent = '✓ Bonus Spin Used!';
+            } else {
+                bonusBtn.disabled = true;
+                bonusBtn.textContent = `Complete all 30 for BONUS! (${count}/30)`;
+            }
+        }
+
+        function toggleStatsMenu() {
+            const menu = document.getElementById('statsMenu');
+            const overlay = document.getElementById('statsOverlay');
+            
+            menu.classList.toggle('active');
+            overlay.classList.toggle('active');
+            
+            if (menu.classList.contains('active')) {
+                updateStats();
+            }
+        }
+
+        function updateStats() {
+            const child = document.getElementById('childSelect').value;
+            const monthIndex = parseInt(document.getElementById('monthSelect').value);
+            const animal = animals[child][monthIndex];
+            const key = getStorageKey();
+            const completed = completedData[key] || {};
+            const ratings = completedData[key + '_ratings'] || {};
+            
+            let totalCompleted = 0;
+            let totalSuns = 0;
+            let totalMoons = 0;
+            let totalStars = 0;
+            let totalBooks = 0;
+            let totalBad = 0;
+            
+            for (let i = 1; i <= 30; i++) {
+                if (completed[i]) {
+                    totalCompleted++;
+                    const rating = ratings[i] || { suns: 0, moons: 0, stars: 0, books: 0, bad: 0 };
+                    totalSuns += rating.suns;
+                    totalMoons += rating.moons;
+                    totalStars += rating.stars;
+                    totalBooks += rating.books;
+                    totalBad += rating.bad;
+                }
+            }
+            
+            const percentage = Math.round((totalCompleted / 30) * 100);
+            const childName = child === 'maya' ? 'Maya' : 'Surya';
+            
+            const statsContent = document.getElementById('statsContent');
+            statsContent.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-title">${animal.month}</div>
+                    <div class="stat-value">${totalCompleted} / 30</div>
+                    <div class="stat-title" style="margin-top: 10px;">Days Completed (${percentage}%)</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-title">Good Behavior & Activities</div>
+                    <div class="stat-icons">
+                        <div class="stat-icon-item">
+                            <span>☀️</span>
+                            <span>${totalSuns}</span>
+                        </div>
+                        <div class="stat-icon-item">
+                            <span>🌙</span>
+                            <span>${totalMoons}</span>
+                        </div>
+                        <div class="stat-icon-item">
+                            <span>⭐</span>
+                            <span>${totalStars}</span>
+                        </div>
+                        <div class="stat-icon-item">
+                            <span>📚</span>
+                            <span>${totalBooks}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                ${totalBad > 0 ? `
+                <div class="stat-card" style="border-left-color: #FF6B6B;">
+                    <div class="stat-title">Areas to Improve</div>
+                    <div class="stat-icons">
+                        <div class="stat-icon-item">
+                            <span>❌</span>
+                            <span style="color: #FF6B6B;">${totalBad}</span>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div class="stat-card" style="background: linear-gradient(135deg, #fff9e6 0%, #ffd54f 100%);">
+                    <div class="stat-title">Total Points</div>
+                    <div class="stat-value">${totalSuns + totalMoons + totalStars + totalBooks}</div>
+                    <div class="stat-title" style="margin-top: 10px;">🌟 Keep it up, ${childName}!</div>
+                </div>
+            `;
+        }
+
+        function resetChart() {
+            if (confirm('Reset this month? This will clear all progress, ratings, spins, rewards and photos!')) {
+                const key = getStorageKey();
+                completedData[key] = {};
+                completedData[key + '_ratings'] = {};
+                completedData[key + '_reward'] = '';
+                completedData[key + '_weeklySpins'] = 4;
+                completedData[key + '_bonusSpin'] = 1;
+                completedData[key + '_chosen'] = [];
+                completedData[key + '_photos'] = [];
+                weeklySpinsRemaining = 4;
+                bonusSpinRemaining = 1;
+                chosenRewards = [];
+                saveData();
+                updateChart();
+                vibrate(20);
+            }
+        }
+
+        function printChart() {
+            window.print();
+        }
+
+        document.getElementById('rewardInput').addEventListener('change', function() {
+            const key = getStorageKey();
+            completedData[key + '_reward'] = this.value;
+            saveData();
+            updateSpinButton();
+        });
+
+        loadData();
+        requestNotificationPermission();
+        scheduleDailyNotification();
+        updateChart();
+    </script>
+</body>
+</html>
